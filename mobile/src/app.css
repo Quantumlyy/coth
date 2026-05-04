@@ -82,3 +82,63 @@ input, textarea, select {
 .error { color: #ff5f5f; font-size: 0.9rem; }
 
 details summary { cursor: pointer; padding: 0.4rem 0; color: #8a8a91; }
+
+/* Console screen */
+.console { height: 100%; }
+.log {
+  flex: 1;
+  background: #08080a;
+  border: 1px solid #2b2b30;
+  border-radius: 8px;
+  padding: 0.6rem;
+  overflow-y: auto;
+  font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+  font-size: 0.8rem;
+  white-space: pre-wrap;
+  word-break: break-all;
+  margin: 0;
+  min-height: 12rem;
+}
+.log-async { color: #ffb86c; }
+.log-ok { color: #7ce38b; }
+.log-err { color: #ff7b72; }
+.console-form { display: flex; gap: 0.5rem; }
+.console-form input { flex: 1; }
+
+/* Mode screen */
+.mode-list { list-style: none; padding: 0; margin: 0; display: grid; gap: 0.5rem; }
+.mode-list button {
+  width: 100%;
+  text-align: left;
+  background: #1a1a1e;
+  color: #e7e7ea;
+  display: flex;
+  flex-direction: column;
+  gap: 0.15rem;
+  padding: 0.7rem;
+  position: relative;
+}
+.mode-list .badge {
+  position: absolute;
+  right: 0.7rem;
+  top: 0.7rem;
+  background: #2b6cff;
+  color: #fff;
+  font-size: 0.7rem;
+  padding: 0.1rem 0.45rem;
+  border-radius: 99px;
+}
+
+/* Status screen — kv list */
+.kv {
+  display: grid;
+  grid-template-columns: 6rem 1fr;
+  gap: 0.3rem 0.75rem;
+  background: #1a1a1e;
+  border-radius: 8px;
+  padding: 0.7rem;
+  margin: 0;
+  font-size: 0.9rem;
+}
+.kv dt { color: #8a8a91; }
+.kv dd { margin: 0; word-break: break-word; }
