@@ -26,7 +26,10 @@ export const NUS_TX_UUID = "6e400003-b5a3-f393-e0a9-e50e24dcca9e";
 export const ADVERTISED_NAME = "Mellon";
 
 export async function ensurePermissions(): Promise<void> {
-  await checkPermissions();
+  const granted = await checkPermissions(true);
+  if (!granted) {
+    throw new Error("Bluetooth permission denied");
+  }
 }
 
 export async function scan(timeoutMs = 8000): Promise<BleDevice[]> {
