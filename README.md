@@ -56,6 +56,7 @@ external/    vendored deps (libosdp; see docs/deviations.md §3)
 tests/unit/  native_posix host tests
 tests/hil/   manual hardware-in-the-loop walkthroughs
 tools/       host-side helpers (BLE console, capture parser)
+mobile/      Tauri 2 iOS + Android companion app — see mobile/README.md
 docs/        operator-facing documentation
 prj.conf     Zephyr project configuration
 platformio.ini  PlatformIO project + environments
