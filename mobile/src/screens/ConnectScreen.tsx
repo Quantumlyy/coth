@@ -50,7 +50,17 @@ export default function ConnectScreen({ connected, setConnected, onLine }: Props
       setError(null);
       try {
         await connect(dev.address, () => setConnected(null));
-        await subscribeNus(onLine);
+        try {
+          await subscribeNus(onLine);
+        } catch (subErr) {
+          // The plugin is connected but we can't read NUS — typical when
+          // the operator picked a non-Mellon device from the unfiltered
+          // scan list. Tear the link down so the next attempt starts
+          // clean and the BLE stack isn't holding a useless peripheral.
+          try { await unsubscribeNus(); } catch { /* not subscribed */ }
+          try { await disconnect(); } catch { /* already gone */ }
+          throw subErr;
+        }
         setConnected(dev);
       } catch (e) {
         setError(String(e));
