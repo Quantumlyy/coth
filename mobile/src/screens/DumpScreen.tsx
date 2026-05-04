@@ -1,6 +1,6 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { invoke } from "@tauri-apps/api/core";
-import { dispatch } from "../session";
+import { dispatch, onPendingChange } from "../session";
 import type { Direction, DumpRow } from "../types";
 
 interface Props {
@@ -38,6 +38,9 @@ export default function DumpScreen({ connected }: Props) {
   const [rows, setRows] = useState<DumpRow[]>([]);
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [pending, setPending] = useState(false);
+
+  useEffect(() => onPendingChange(setPending), []);
 
   async function runFetch(command: string) {
     setBusy(true);
@@ -63,6 +66,8 @@ export default function DumpScreen({ connected }: Props) {
         }
       }
       setRows(parsed);
+    } catch (e) {
+      setError(String(e));
     } finally {
       setBusy(false);
     }
@@ -83,13 +88,13 @@ export default function DumpScreen({ connected }: Props) {
           />
         </label>
         <button
-          disabled={!connected || busy}
+          disabled={!connected || busy || pending}
           onClick={() => runFetch(`dump ${count}\n`)}
         >
           {busy ? "fetching…" : "Recent"}
         </button>
         <button
-          disabled={!connected || busy}
+          disabled={!connected || busy || pending}
           onClick={() => runFetch("preserved\n")}
         >
           Preserved

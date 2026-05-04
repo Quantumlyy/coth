@@ -1,5 +1,5 @@
-import { useState } from "react";
-import { dispatch } from "../session";
+import { useEffect, useState } from "react";
+import { dispatch, onPendingChange } from "../session";
 import type { Mode } from "../types";
 
 interface Props {
@@ -17,6 +17,9 @@ export default function ModeScreen({ connected }: Props) {
   const [busy, setBusy] = useState(false);
   const [last, setLast] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
+  const [pending, setPending] = useState(false);
+
+  useEffect(() => onPendingChange(setPending), []);
 
   async function setMode(m: Mode) {
     setBusy(true);
@@ -28,6 +31,8 @@ export default function ModeScreen({ connected }: Props) {
       } else {
         setError(r.err ?? "unknown error");
       }
+    } catch (e) {
+      setError(String(e));
     } finally {
       setBusy(false);
     }
@@ -40,7 +45,7 @@ export default function ModeScreen({ connected }: Props) {
       <ul className="mode-list">
         {MODES.map((m) => (
           <li key={m.id}>
-            <button disabled={!connected || busy} onClick={() => setMode(m.id)}>
+            <button disabled={!connected || busy || pending} onClick={() => setMode(m.id)}>
               <strong>{m.label}</strong>
               <span className="muted">{m.note}</span>
               {last === m.id && <span className="badge">active</span>}

@@ -1,6 +1,6 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { invoke } from "@tauri-apps/api/core";
-import { dispatch } from "../session";
+import { dispatch, onPendingChange } from "../session";
 import type { StatusBlock } from "../types";
 
 interface Props {
@@ -11,6 +11,9 @@ export default function StatusScreen({ connected }: Props) {
   const [block, setBlock] = useState<StatusBlock | null>(null);
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [pending, setPending] = useState(false);
+
+  useEffect(() => onPendingChange(setPending), []);
 
   async function refresh() {
     setBusy(true);
@@ -25,14 +28,12 @@ export default function StatusScreen({ connected }: Props) {
         setError(r.err ?? "unknown error");
         return;
       }
-      try {
-        const parsed = await invoke<StatusBlock>("parse_status_block", {
-          lines: r.lines,
-        });
-        setBlock(parsed);
-      } catch (e) {
-        setError(String(e));
-      }
+      const parsed = await invoke<StatusBlock>("parse_status_block", {
+        lines: r.lines,
+      });
+      setBlock(parsed);
+    } catch (e) {
+      setError(String(e));
     } finally {
       setBusy(false);
     }
@@ -41,7 +42,7 @@ export default function StatusScreen({ connected }: Props) {
   return (
     <section className="screen">
       <h2>Status</h2>
-      <button onClick={refresh} disabled={!connected || busy}>
+      <button onClick={refresh} disabled={!connected || busy || pending}>
         {busy ? "refreshing…" : "Refresh"}
       </button>
       {error && <p className="error">err: {error}</p>}
