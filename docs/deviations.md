@@ -62,7 +62,27 @@ referencing issue #1" as a definition-of-done item. Skipped here because of
 deviation #1 above; an upstream PR would need a re-licensing commit and a
 maintainer-side import strategy that isn't this author's call.
 
-## 5. PlatformIO + Zephyr layout follows spec literally
+## 5. BLE NUS depends on Zephyr's services/nus
+
+`src/ble/nus_console.c` calls `<zephyr/bluetooth/services/nus.h>` (the
+Nordic UART Service). This header has shipped in mainline Zephyr since
+~3.5, but vendored via Nordic's NCS for years before that.
+
+If your PlatformIO Zephyr version is older than 3.5 or lacks the NUS
+subsystem entirely, two paths exist:
+
+- **Upgrade**: bump the `nordicnrf52` PlatformIO platform to a release
+  that pulls in mainline Zephyr ≥ 3.5. Verify with `pio system info`.
+- **Replace**: implement a minimal NUS GATT service inline in
+  `src/ble/nus_console.c` using the universal Zephyr GATT primitives.
+  ~80 lines; the wire protocol stays identical (same UUIDs).
+
+The same caveat applies to `BT_LE_ADV_CONN_NAME` (used in
+`bt_le_adv_start` setup); Zephyr 3.7+ deprecates it in favour of
+`BT_LE_ADV_CONN_FAST_2` plus an explicit `bt_set_name()` call. Adjust
+locally if your version warns or errors.
+
+## 6. PlatformIO + Zephyr layout follows spec literally
 
 **Spec §9** places `prj.conf` and `boards/*.overlay` at the repo root. PlatformIO
 6.x's Zephyr framework historically expected them under `zephyr/`. Modern
