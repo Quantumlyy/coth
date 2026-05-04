@@ -16,6 +16,9 @@ LOG_MODULE_REGISTER(nvs_cfg, CONFIG_LOG_DEFAULT_LEVEL);
 #define NVS_KEY_MODE		1
 #define NVS_KEY_PASSKEY		2
 
+/* Preserved-frame slots live at NVS keys 0x100..0x100+SLOTS-1. */
+#define NVS_KEY_PRESERVED_BASE	0x100
+
 static struct nvs_fs g_fs;
 static bool g_initialised;
 
@@ -94,6 +97,41 @@ int mellon_nvs_get_passkey(uint32_t *out)
 	ssize_t n = nvs_read(&g_fs, NVS_KEY_PASSKEY, out, sizeof(*out));
 	if (n != sizeof(*out)) {
 		return -ENOENT;
+	}
+	return 0;
+}
+
+int mellon_nvs_put_preserved(uint8_t slot, const uint8_t *bytes, size_t len)
+{
+	if (!g_initialised || slot >= MELLON_PRESERVED_SLOTS || !bytes) {
+		return -EINVAL;
+	}
+	ssize_t n = nvs_write(&g_fs, NVS_KEY_PRESERVED_BASE + slot, bytes, len);
+	return (n < 0) ? (int)n : 0;
+}
+
+int mellon_nvs_get_preserved(uint8_t slot, uint8_t *out, size_t cap, size_t *len_out)
+{
+	if (!g_initialised || slot >= MELLON_PRESERVED_SLOTS || !out) {
+		return -EINVAL;
+	}
+	ssize_t n = nvs_read(&g_fs, NVS_KEY_PRESERVED_BASE + slot, out, cap);
+	if (n < 0) {
+		return -ENOENT;
+	}
+	if (len_out) {
+		*len_out = (size_t)n;
+	}
+	return 0;
+}
+
+int mellon_nvs_clear_preserved(void)
+{
+	if (!g_initialised) {
+		return -EBADF;
+	}
+	for (uint8_t i = 0; i < MELLON_PRESERVED_SLOTS; i++) {
+		(void)nvs_delete(&g_fs, NVS_KEY_PRESERVED_BASE + i);
 	}
 	return 0;
 }

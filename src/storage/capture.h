@@ -46,7 +46,13 @@ typedef int (*mellon_capture_walk_cb)(const capture_rec_hdr_t *hdr,
 
 int mellon_capture_walk(mellon_capture_walk_cb cb, void *user, size_t max_records);
 
-/* Erase all records. Used by the BLE `wipe` command. */
+/*
+ * Walk the M5 KEYSET-preserved frames (NVS-backed, survives power-cycle).
+ * Returns the number of preserved entries visited.
+ */
+int mellon_capture_walk_preserved(mellon_capture_walk_cb cb, void *user);
+
+/* Erase all records — both FCB and preserved NVS slots. Used by `wipe`. */
 int mellon_capture_wipe(void);
 
 /* Diagnostics for the BLE `status` command. */

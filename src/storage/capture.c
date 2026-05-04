@@ -11,6 +11,7 @@
 #include <zephyr/storage/flash_map.h>
 
 #include "../attacks/sniff.h"
+#include "nvs_config.h"
 
 LOG_MODULE_REGISTER(capture, CONFIG_LOG_DEFAULT_LEVEL);
 
@@ -26,6 +27,13 @@ static struct fcb g_fcb;
 static struct flash_sector g_sectors[CAPTURE_SECTOR_COUNT];
 static struct fcb_entry g_last_entry;
 static bool g_have_last_entry;
+
+/* Buffered most-recently-recorded entry, used by preserve_last(). */
+static uint8_t g_last_buf[CAPTURE_REC_MAX];
+static size_t g_last_buf_len;
+
+/* Round-robin slot for preserved-frame NVS keys. */
+static uint8_t g_preserved_next_slot;
 
 static bool g_active;
 static bool g_initialised;
@@ -151,6 +159,9 @@ int mellon_capture_record(const osdp_frame_t *frame)
 		g_have_last_entry = true;
 		g_stats.records_total++;
 		g_stats.bytes_used_estimate += (uint32_t)packed;
+		/* Stash the bytes for a possible preserve_last() call. */
+		memcpy(g_last_buf, buf, packed);
+		g_last_buf_len = (size_t)packed;
 	}
 	k_mutex_unlock(&cap_lock);
 
@@ -163,20 +174,23 @@ int mellon_capture_record(const osdp_frame_t *frame)
 int mellon_capture_preserve_last(void)
 {
 	/*
-	 * FCB doesn't natively support per-entry mutation. For the v1
-	 * implementation we just bump a counter and record the address
-	 * of the entry; the eviction guard is implemented in M5 (commit 8)
-	 * by re-appending preserved entries to the head before fcb_rotate
-	 * erases the sector that holds them.
-	 *
-	 * Until then, this function is best-effort: it counts preservations
-	 * for diagnostics but doesn't actually prevent eviction.
+	 * Preservation strategy: copy the last-recorded packed record into a
+	 * slot in NVS. NVS has its own wear-levelling and atomic writes, so
+	 * a power loss mid-preserve leaves the previous slot intact rather
+	 * than corrupting the FCB log. The slot index is round-robin —
+	 * after MELLON_PRESERVED_SLOTS hits, the oldest slot is overwritten.
 	 */
-	if (!g_have_last_entry) {
+	if (!g_have_last_entry || g_last_buf_len == 0) {
 		return -ENOENT;
 	}
-	g_stats.records_preserved++;
-	return 0;
+	int ret = mellon_nvs_put_preserved(g_preserved_next_slot,
+					   g_last_buf, g_last_buf_len);
+	if (ret == 0) {
+		g_preserved_next_slot = (uint8_t)((g_preserved_next_slot + 1)
+						  % MELLON_PRESERVED_SLOTS);
+		g_stats.records_preserved++;
+	}
+	return ret;
 }
 
 struct walk_ctx {
@@ -229,6 +243,32 @@ int mellon_capture_walk(mellon_capture_walk_cb cb, void *user, size_t max_record
 	return (int)ctx.seen;
 }
 
+int mellon_capture_walk_preserved(mellon_capture_walk_cb cb, void *user)
+{
+	if (!cb) {
+		return -EINVAL;
+	}
+	int seen = 0;
+	for (uint8_t i = 0; i < MELLON_PRESERVED_SLOTS; i++) {
+		uint8_t buf[CAPTURE_REC_MAX];
+		size_t n = 0;
+		if (mellon_nvs_get_preserved(i, buf, sizeof(buf), &n) < 0) {
+			continue;
+		}
+		capture_rec_hdr_t hdr;
+		const uint8_t *frame;
+		if (capture_rec_unpack(buf, n, &hdr, &frame) < 0) {
+			continue;
+		}
+		int rc = cb(&hdr, frame, user);
+		seen++;
+		if (rc != 0) {
+			break;
+		}
+	}
+	return seen;
+}
+
 int mellon_capture_wipe(void)
 {
 	if (!g_initialised) {
@@ -236,7 +276,10 @@ int mellon_capture_wipe(void)
 	}
 	k_mutex_lock(&cap_lock, K_FOREVER);
 	int ret = fcb_clear(&g_fcb);
+	(void)mellon_nvs_clear_preserved();
 	g_have_last_entry = false;
+	g_last_buf_len = 0;
+	g_preserved_next_slot = 0;
 	memset(&g_stats, 0, sizeof(g_stats));
 	k_mutex_unlock(&cap_lock);
 	return ret;

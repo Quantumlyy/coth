@@ -5,6 +5,7 @@
 #include <zephyr/kernel.h>
 #include <zephyr/logging/log.h>
 
+#include "attacks/keyset.h"
 #include "attacks/sniff.h"
 #include "osdp/framing.h"
 #include "osdp/libosdp_glue.h"
@@ -98,6 +99,7 @@ int mellon_mode_init(void)
 	secchan_init();
 	mellon_libosdp_init();
 	mellon_sniff_init();
+	mellon_keyset_watcher_init();
 
 	apply_mode(g.current);
 	LOG_INF("mode dispatcher up — current=%s",

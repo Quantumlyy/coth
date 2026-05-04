@@ -2,6 +2,7 @@
 
 #include <ctype.h>
 #include <errno.h>
+#include <limits.h>
 #include <stdarg.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -293,6 +294,13 @@ static void cmd_dump(char *args)
 	mellon_ble_console_print("ok %d records", seen);
 }
 
+static void cmd_preserved(void)
+{
+	struct dump_ctx ctx = { .remaining = INT_MAX };
+	int seen = mellon_capture_walk_preserved(dump_one, &ctx);
+	mellon_ble_console_print("ok %d preserved (KEYSET) records", seen);
+}
+
 static void cmd_capture(char *args)
 {
 	char *toggle = next_arg(&args);
@@ -360,6 +368,8 @@ static void cmd_dispatch(const char *line)
 		cmd_keys();
 	} else if (strcmp(cmd, "dump") == 0) {
 		cmd_dump(cursor);
+	} else if (strcmp(cmd, "preserved") == 0) {
+		cmd_preserved();
 	} else if (strcmp(cmd, "capture") == 0) {
 		cmd_capture(cursor);
 	} else if (strcmp(cmd, "wipe") == 0) {

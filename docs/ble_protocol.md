@@ -35,8 +35,9 @@ shows "no PIN required", something is wrong — check the build flags.
 | `status` | — | build, mode, frame counters, poll stats, libosdp present | always |
 | `mode <name>` | `idle\|sniff\|keyset_watch\|weak_keys` (active modes return err) | `ok mode=<name>` | M2+ |
 | `dump <n>` | count | `<n>` lines, one per captured frame | M3 |
+| `preserved` | — | one line per NVS-preserved (KEYSET) frame | M5 |
 | `capture` | `on\|off` | `ok` | M3 |
-| `wipe` | — | `ok` | M3 |
+| `wipe` | — | `ok` (clears FCB **and** preserved slots) | M3 |
 | `keys` | — | `addr=0xNN sc=y/n scbk=captured/-` per known PD | M2+ |
 | `attack weak_keys` | — | progress lines, `* MATCH …` on hit, `ok` or `err: not found` | M4 |
 | `arm <mode> <ttl>` | mode name + TTL seconds (≤300) | `ok armed nonce=NNNNNNNN` | M6/M7 (disabled) |
