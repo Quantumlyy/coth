@@ -27,6 +27,21 @@ interface Pending {
 }
 
 let pending: Pending | null = null;
+let listeners: ((busy: boolean) => void)[] = [];
+
+function notifyListeners() {
+  const busy = pending !== null;
+  for (const l of listeners) l(busy);
+}
+
+/// Subscribe to in-flight changes. Returns an unsubscribe fn.
+export function onPendingChange(cb: (busy: boolean) => void): () => void {
+  listeners.push(cb);
+  cb(pending !== null);
+  return () => {
+    listeners = listeners.filter((l) => l !== cb);
+  };
+}
 
 function clearPendingTimers(p: Pending) {
   window.clearTimeout(p.hardTimer);
@@ -38,6 +53,7 @@ function settle(result: CommandResult) {
   const p = pending;
   pending = null;
   clearPendingTimers(p);
+  notifyListeners();
   p.resolve(result);
 }
 
@@ -101,6 +117,7 @@ export async function dispatch(
         err: options.expectsTerminator ? "timeout" : null,
       });
     }, timeoutMs);
+    notifyListeners();
     // The quiet window starts on the first response line, not on dispatch
     // itself: sendCommand can take 500 ms on the iOS auth-retry path, and
     // a quietMs shorter than that would otherwise resolve before any reply

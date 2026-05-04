@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState } from "react";
 import { sendCommand } from "../ble";
+import { onPendingChange } from "../session";
 import type { Line } from "../types";
 
 interface Props {
@@ -23,15 +24,18 @@ function format(line: Line): string {
 export default function ConsoleScreen({ history, connected }: Props) {
   const [input, setInput] = useState("");
   const [busy, setBusy] = useState(false);
+  const [structuredPending, setStructuredPending] = useState(false);
   const logRef = useRef<HTMLPreElement | null>(null);
 
   useEffect(() => {
     if (logRef.current) logRef.current.scrollTop = logRef.current.scrollHeight;
   }, [history.length]);
 
+  useEffect(() => onPendingChange(setStructuredPending), []);
+
   async function submit() {
     const cmd = input.trim();
-    if (!cmd) return;
+    if (!cmd || structuredPending) return;
     setInput("");
     setBusy(true);
     try {
@@ -40,6 +44,8 @@ export default function ConsoleScreen({ history, connected }: Props) {
       setBusy(false);
     }
   }
+
+  const disabled = !connected || busy || structuredPending;
 
   return (
     <section className="screen console">
@@ -65,12 +71,18 @@ export default function ConsoleScreen({ history, connected }: Props) {
           autoCapitalize="none"
           autoCorrect="off"
           spellCheck={false}
-          placeholder={connected ? "command (e.g. help)" : "not connected"}
+          placeholder={
+            !connected
+              ? "not connected"
+              : structuredPending
+                ? "another command is in flight…"
+                : "command (e.g. help)"
+          }
           value={input}
-          disabled={!connected || busy}
+          disabled={disabled}
           onChange={(e) => setInput(e.target.value)}
         />
-        <button type="submit" disabled={!connected || busy || !input.trim()}>
+        <button type="submit" disabled={disabled || !input.trim()}>
           send
         </button>
       </form>
