@@ -36,18 +36,16 @@ export async function scan(timeoutMs = 8000): Promise<BleDevice[]> {
   await ensurePermissions();
   return new Promise((resolve, reject) => {
     let latest: BleDevice[] = [];
-    try {
-      startScan((devs) => {
-        latest = devs;
-      }, timeoutMs);
-    } catch (err) {
-      reject(err);
-      return;
-    }
-    setTimeout(() => {
+    const timer = window.setTimeout(() => {
       stopScan().catch(() => {});
       resolve(latest);
     }, timeoutMs);
+    startScan((devs) => {
+      latest = devs;
+    }, timeoutMs).catch((err) => {
+      window.clearTimeout(timer);
+      reject(err);
+    });
   });
 }
 
