@@ -21,6 +21,28 @@ npm run tauri android init
 `gen/{apple,android}` is committed (Tauri's documented stance) but the build
 artefacts beneath are gitignored.
 
+After init you must add BLE permissions before the first build:
+
+**iOS** — `src-tauri/gen/apple/<app>/Info.plist`:
+
+```xml
+<key>NSBluetoothAlwaysUsageDescription</key>
+<string>Mellon connects to your hardware over Bluetooth Low Energy.</string>
+```
+
+**Android** — `src-tauri/gen/android/app/src/main/AndroidManifest.xml`:
+
+```xml
+<uses-permission android:name="android.permission.BLUETOOTH_SCAN"
+    android:usesPermissionFlags="neverForLocation"/>
+<uses-permission android:name="android.permission.BLUETOOTH_CONNECT"/>
+<uses-permission android:name="android.permission.ACCESS_FINE_LOCATION"
+    android:maxSdkVersion="30"/>
+<uses-feature android:name="android.hardware.bluetooth_le" android:required="true"/>
+```
+
+Bump `minSdkVersion` to 24 in `gen/android/app/build.gradle.kts` (tauri-plugin-blec floor).
+
 ## Running on a device
 
 ```sh

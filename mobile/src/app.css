@@ -19,7 +19,66 @@ body {
   display: flex;
   flex-direction: column;
   height: 100%;
+  gap: 0.75rem;
 }
 
-h1 { margin: 0 0 0.5rem; font-size: 1.4rem; }
-.muted { color: #8a8a91; }
+header h1 { margin: 0 0 0.25rem; font-size: 1.4rem; }
+.muted { color: #8a8a91; margin: 0; font-size: 0.85rem; }
+
+.tabs {
+  display: flex;
+  gap: 0.5rem;
+  overflow-x: auto;
+  border-bottom: 1px solid #2b2b30;
+  padding-bottom: 0.5rem;
+}
+.tab {
+  background: transparent;
+  color: #aaa;
+  border: none;
+  padding: 0.4rem 0.75rem;
+  font: inherit;
+  border-radius: 6px;
+}
+.tab.active { background: #1f1f24; color: #fff; }
+
+.screen-host { flex: 1; overflow-y: auto; }
+.screen { display: flex; flex-direction: column; gap: 0.75rem; }
+.screen h2 { margin: 0; font-size: 1.1rem; }
+
+button {
+  background: #2b6cff;
+  color: #fff;
+  border: none;
+  border-radius: 8px;
+  padding: 0.6rem 1rem;
+  font: inherit;
+}
+button:disabled { background: #3b3b40; color: #888; }
+
+input, textarea, select {
+  background: #1a1a1e;
+  border: 1px solid #2b2b30;
+  color: #e7e7ea;
+  border-radius: 8px;
+  padding: 0.5rem 0.7rem;
+  font: inherit;
+  width: 100%;
+}
+
+.device-list { list-style: none; padding: 0; margin: 0; display: grid; gap: 0.5rem; }
+.device-list button {
+  width: 100%;
+  text-align: left;
+  background: #1a1a1e;
+  color: #e7e7ea;
+  display: flex;
+  flex-direction: column;
+  gap: 0.2rem;
+  padding: 0.7rem;
+}
+.device-list code { color: #8aa6ff; font-size: 0.85rem; }
+
+.error { color: #ff5f5f; font-size: 0.9rem; }
+
+details summary { cursor: pointer; padding: 0.4rem 0; color: #8a8a91; }
