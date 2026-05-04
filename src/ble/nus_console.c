@@ -17,6 +17,7 @@
 #include <zephyr/logging/log.h>
 
 #include "../attacks/sniff.h"
+#include "../attacks/weakkeys.h"
 #include "../mode.h"
 #include "../osdp/framing.h"
 #include "../osdp/libosdp_glue.h"
@@ -330,6 +331,30 @@ static void cmd_wipe(void)
 	}
 }
 
+static void cmd_attack(char *args)
+{
+	char *what = next_arg(&args);
+	if (!what) {
+		mellon_ble_console_print("usage: attack weak_keys");
+		return;
+	}
+	if (strcmp(what, "weak_keys") == 0) {
+		int ret = mellon_weakkeys_start();
+		if (ret == 0) {
+			mellon_ble_console_print("ok weak_keys: trial pass scheduled");
+		} else if (ret == -EBUSY) {
+			mellon_ble_console_print("err: weak_keys already running");
+		} else {
+			mellon_ble_console_print("err: %d", ret);
+		}
+	} else if (strcmp(what, "cancel") == 0) {
+		(void)mellon_weakkeys_cancel();
+		mellon_ble_console_print("ok cancel signalled");
+	} else {
+		mellon_ble_console_print("err: unknown attack '%s'", what);
+	}
+}
+
 static void cmd_keys(void)
 {
 	secchan_pd_state_t pds[SECCHAN_TRACK_ADDRS];
@@ -374,11 +399,11 @@ static void cmd_dispatch(const char *line)
 		cmd_capture(cursor);
 	} else if (strcmp(cmd, "wipe") == 0) {
 		cmd_wipe();
-	} else if (strcmp(cmd, "attack") == 0
-		   || strcmp(cmd, "arm") == 0
-		   || strcmp(cmd, "fire") == 0) {
-		/* attack: M4 (commit 9). arm/fire: M6/M7 reserved (active modes). */
-		mellon_ble_console_print("err: '%s' not yet wired in this build", cmd);
+	} else if (strcmp(cmd, "attack") == 0) {
+		cmd_attack(cursor);
+	} else if (strcmp(cmd, "arm") == 0 || strcmp(cmd, "fire") == 0) {
+		/* arm/fire are M6/M7 active modes — disabled in v1. */
+		mellon_ble_console_print("err: '%s' — active modes not in this build", cmd);
 	} else {
 		mellon_ble_console_print("err: unknown '%s' (try 'help')", cmd);
 	}

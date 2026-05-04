@@ -7,6 +7,7 @@
 
 #include "attacks/keyset.h"
 #include "attacks/sniff.h"
+#include "attacks/weakkeys.h"
 #include "osdp/framing.h"
 #include "osdp/libosdp_glue.h"
 #include "osdp/secchan.h"
@@ -100,6 +101,7 @@ int mellon_mode_init(void)
 	mellon_libosdp_init();
 	mellon_sniff_init();
 	mellon_keyset_watcher_init();
+	mellon_weakkeys_init();
 
 	apply_mode(g.current);
 	LOG_INF("mode dispatcher up — current=%s",
