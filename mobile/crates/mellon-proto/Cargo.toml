@@ -1,0 +1,6 @@
+[package]
+name = "mellon-proto"
+description = "Mellon NUS line-protocol parser (host-testable, no I/O)"
+edition.workspace = true
+version.workspace = true
+license.workspace = true

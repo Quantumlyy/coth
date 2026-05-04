@@ -1,0 +1,25 @@
+:root {
+  color-scheme: light dark;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  font-size: 16px;
+  line-height: 1.4;
+}
+
+* { box-sizing: border-box; }
+
+html, body, #root { height: 100%; margin: 0; }
+
+body {
+  background: #0c0c0e;
+  color: #e7e7ea;
+}
+
+.app {
+  padding: env(safe-area-inset-top, 1rem) 1rem env(safe-area-inset-bottom, 1rem);
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+}
+
+h1 { margin: 0 0 0.5rem; font-size: 1.4rem; }
+.muted { color: #8a8a91; }
