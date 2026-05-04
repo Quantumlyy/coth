@@ -22,7 +22,7 @@ from __future__ import annotations
 import argparse
 import struct
 import sys
-from typing import Iterator, BinaryIO
+from typing import Iterator, BinaryIO, TextIO
 
 CAPTURE_REC_HDR_LEN = 8
 DIR_NAMES = {0: "?", 1: "cp2pd", 2: "pd2cp"}
@@ -52,7 +52,7 @@ def parse_binary(stream: BinaryIO) -> Iterator[dict]:
         }
 
 
-def parse_ble(stream) -> Iterator[dict]:
+def parse_ble(stream: TextIO) -> Iterator[dict]:
     """Re-parse the BLE 'dump' command output. Format per ble_protocol.md:
 
     [t=00:01:23.456] dir=cp2pd addr=0x00 cmd=0x60 len=8 flags=0  53 00 08 00 00 60 ?? ??
@@ -92,7 +92,8 @@ def _decode_t(s: str) -> int:
         h, m, sec = (int(x) for x in hms.split(":"))
         ms_int = int(ms.ljust(3, "0")[:3])
         return ((h * 3600 + m * 60 + sec) * 1000 + ms_int) * 1000
-    except Exception:
+    except (ValueError, AttributeError) as e:
+        sys.stderr.write(f"warn: malformed timestamp {s!r} ({e})\n")
         return 0
 
 
