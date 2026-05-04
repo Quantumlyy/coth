@@ -1922,10 +1922,8 @@ dependencies = [
 name = "mellon-mobile"
 version = "0.1.0"
 dependencies = [
- "log",
  "mellon-proto",
  "serde",
- "serde_json",
  "tauri",
  "tauri-build",
  "tauri-plugin-blec",
