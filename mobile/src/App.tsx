@@ -6,6 +6,7 @@ import ModeScreen from "./screens/ModeScreen";
 import StatusScreen from "./screens/StatusScreen";
 import DumpScreen from "./screens/DumpScreen";
 import AsyncScreen, { type AsyncRecord } from "./screens/AsyncScreen";
+import ErrorBoundary from "./ErrorBoundary";
 import { consumeLine } from "./session";
 import type { Line } from "./types";
 
@@ -64,20 +65,22 @@ export default function App() {
       </nav>
 
       <div className="screen-host">
-        {tab === "connect" && (
-          <ConnectScreen
-            connected={connected}
-            setConnected={setConnected}
-            onLine={onLine}
-          />
-        )}
-        {tab === "console" && (
-          <ConsoleScreen history={history} connected={!!connected} />
-        )}
-        {tab === "mode" && <ModeScreen connected={!!connected} />}
-        {tab === "status" && <StatusScreen connected={!!connected} />}
-        {tab === "dump" && <DumpScreen connected={!!connected} />}
-        {tab === "async" && <AsyncScreen events={asyncEvents} />}
+        <ErrorBoundary key={tab}>
+          {tab === "connect" && (
+            <ConnectScreen
+              connected={connected}
+              setConnected={setConnected}
+              onLine={onLine}
+            />
+          )}
+          {tab === "console" && (
+            <ConsoleScreen history={history} connected={!!connected} />
+          )}
+          {tab === "mode" && <ModeScreen connected={!!connected} />}
+          {tab === "status" && <StatusScreen connected={!!connected} />}
+          {tab === "dump" && <DumpScreen connected={!!connected} />}
+          {tab === "async" && <AsyncScreen events={asyncEvents} />}
+        </ErrorBoundary>
       </div>
     </main>
   );
