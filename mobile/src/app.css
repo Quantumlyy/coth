@@ -142,3 +142,42 @@ details summary { cursor: pointer; padding: 0.4rem 0; color: #8a8a91; }
 }
 .kv dt { color: #8a8a91; }
 .kv dd { margin: 0; word-break: break-word; }
+
+/* Dump screen */
+.dump-controls { display: flex; gap: 0.5rem; align-items: end; }
+.dump-controls label { display: flex; flex-direction: column; gap: 0.2rem; flex: 0 0 5rem; }
+.dump-controls input { width: 100%; }
+
+.dump-list { list-style: none; padding: 0; margin: 0; display: grid; gap: 0.5rem; }
+.dump-list li {
+  background: #1a1a1e;
+  border-radius: 8px;
+  padding: 0.6rem;
+  font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+  font-size: 0.78rem;
+}
+.dump-list header {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.4rem 0.7rem;
+  font-size: 0.75rem;
+  color: #aaa;
+  margin-bottom: 0.2rem;
+}
+.dump-list .t { color: #8aa6ff; }
+.dump-list .dir { color: #ffb86c; }
+.dump-list .flags { color: #ff7b72; }
+.dump-list code { color: #e7e7ea; word-break: break-all; }
+
+/* Async screen */
+.async-list { list-style: none; padding: 0; margin: 0; display: grid; gap: 0.4rem; }
+.async-list li {
+  background: #1a1a1e;
+  border-radius: 8px;
+  padding: 0.5rem 0.6rem;
+  font-size: 0.85rem;
+  display: flex;
+  gap: 0.6rem;
+  align-items: baseline;
+}
+.async-list .t { color: #8aa6ff; font-family: ui-monospace, monospace; font-size: 0.75rem; flex-shrink: 0; }
