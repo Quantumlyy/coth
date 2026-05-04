@@ -1,0 +1,32 @@
+.pio/
+.pioenvs/
+.piolibdeps/
+.vscode/
+.cache/
+.zephyr/
+build/
+zephyr/build/
+*.elf
+*.hex
+*.bin
+*.map
+*.o
+*.d
+*.lst
+*.su
+
+# OS / editor
+.DS_Store
+*.swp
+*~
+.idea/
+*.code-workspace
+
+# Python helper scripts
+__pycache__/
+*.pyc
+.venv/
+
+# Local secrets / scratch
+*.local
+.env

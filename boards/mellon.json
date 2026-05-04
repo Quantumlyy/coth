@@ -1,0 +1,31 @@
+{
+  "build": {
+    "core": "nRF5",
+    "cpu": "cortex-m4",
+    "extra_flags": "-DNRF52832_XXAA -DNRF52",
+    "f_cpu": "64000000L",
+    "hwids": [],
+    "mcu": "nrf52832",
+    "variant": "mellon",
+    "zephyr": {
+      "variant": "mellon"
+    }
+  },
+  "connectivity": ["bluetooth"],
+  "debug": {
+    "default_tools": ["jlink"],
+    "jlink_device": "nRF52832_xxAA",
+    "onboard_tools": [],
+    "svd_path": "nrf52.svd"
+  },
+  "frameworks": ["zephyr"],
+  "name": "Bishop Fox Mellon v0.1 (MDBT42Q-512KV2 / nRF52832)",
+  "upload": {
+    "maximum_ram_size": 65536,
+    "maximum_size": 524288,
+    "protocol": "jlink",
+    "protocols": ["jlink", "cmsis-dap"]
+  },
+  "url": "https://github.com/BishopFox/mellon",
+  "vendor": "Bishop Fox"
+}
