@@ -17,6 +17,7 @@
 #include "board/board.h"
 #include "board/rs485.h"
 #include "mode.h"
+#include "storage/capture.h"
 #include "storage/nvs_config.h"
 #include "util/log.h"
 
@@ -93,6 +94,11 @@ int main(void)
 	ret = mellon_mode_init();
 	if (ret < 0) {
 		LOG_WRN("mode_init: %d — running degraded", ret);
+	}
+
+	ret = mellon_capture_init();
+	if (ret < 0) {
+		LOG_WRN("capture_init: %d — flash log disabled", ret);
 	}
 
 	uint32_t passkey = MELLON_DEFAULT_PASSKEY;

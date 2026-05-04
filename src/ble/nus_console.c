@@ -4,6 +4,7 @@
 #include <errno.h>
 #include <stdarg.h>
 #include <stdio.h>
+#include <stdlib.h>
 #include <string.h>
 
 #include <zephyr/bluetooth/bluetooth.h>
@@ -19,6 +20,7 @@
 #include "../osdp/framing.h"
 #include "../osdp/libosdp_glue.h"
 #include "../osdp/secchan.h"
+#include "../storage/capture.h"
 #include "../storage/nvs_config.h"
 #include "../util/timing.h"
 
@@ -231,6 +233,95 @@ static void cmd_mode(char *args)
 	mellon_ble_console_print("ok mode=%s", mellon_mode_name(m));
 }
 
+static const char *dir_str(uint8_t d)
+{
+	switch (d) {
+	case CAPTURE_DIR_CP_TO_PD: return "cp2pd";
+	case CAPTURE_DIR_PD_TO_CP: return "pd2cp";
+	default: return "?";
+	}
+}
+
+struct dump_ctx {
+	int remaining;
+};
+
+static int dump_one(const capture_rec_hdr_t *hdr, const uint8_t *frame, void *user)
+{
+	struct dump_ctx *ctx = user;
+	if (ctx->remaining <= 0) {
+		return 1;
+	}
+
+	char hex[3 * CAPTURE_FRAME_MAX];
+	size_t off = 0;
+	for (size_t i = 0; i < hdr->length && off + 3 < sizeof(hex); i++) {
+		off += (size_t)snprintf(hex + off, sizeof(hex) - off, "%02X ", frame[i]);
+	}
+	if (off > 0 && hex[off - 1] == ' ') {
+		hex[off - 1] = '\0';
+	} else {
+		hex[off] = '\0';
+	}
+
+	uint32_t s = hdr->timestamp_us / 1000000U;
+	uint32_t ms = (hdr->timestamp_us / 1000U) % 1000U;
+	uint8_t addr = hdr->length >= 2 ? frame[1] & 0x7F : 0;
+	uint8_t cmd = hdr->length >= 6 ? frame[5] : 0;
+
+	mellon_ble_console_print(
+		"[t=%02u:%02u:%02u.%03u] dir=%s addr=0x%02X cmd=0x%02X len=%u flags=%u  %s",
+		s / 3600, (s / 60) % 60, s % 60, ms,
+		dir_str(hdr->direction), addr, cmd,
+		(unsigned)hdr->length, (unsigned)hdr->flags, hex);
+
+	ctx->remaining--;
+	return ctx->remaining <= 0 ? 1 : 0;
+}
+
+static void cmd_dump(char *args)
+{
+	char *count_s = next_arg(&args);
+	int n = count_s ? atoi(count_s) : 10;
+	if (n <= 0 || n > 1000) {
+		mellon_ble_console_print("usage: dump <1..1000>");
+		return;
+	}
+
+	struct dump_ctx ctx = { .remaining = n };
+	int seen = mellon_capture_walk(dump_one, &ctx, (size_t)n);
+	mellon_ble_console_print("ok %d records", seen);
+}
+
+static void cmd_capture(char *args)
+{
+	char *toggle = next_arg(&args);
+	if (!toggle) {
+		mellon_ble_console_print("capture: %s",
+			mellon_capture_is_active() ? "on" : "off");
+		return;
+	}
+	if (strcmp(toggle, "on") == 0) {
+		mellon_capture_set_active(true);
+		mellon_ble_console_print("ok capture=on");
+	} else if (strcmp(toggle, "off") == 0) {
+		mellon_capture_set_active(false);
+		mellon_ble_console_print("ok capture=off");
+	} else {
+		mellon_ble_console_print("usage: capture on|off");
+	}
+}
+
+static void cmd_wipe(void)
+{
+	int ret = mellon_capture_wipe();
+	if (ret == 0) {
+		mellon_ble_console_print("ok wiped");
+	} else {
+		mellon_ble_console_print("err: %d", ret);
+	}
+}
+
 static void cmd_keys(void)
 {
 	secchan_pd_state_t pds[SECCHAN_TRACK_ADDRS];
@@ -267,13 +358,16 @@ static void cmd_dispatch(const char *line)
 		cmd_mode(cursor);
 	} else if (strcmp(cmd, "keys") == 0) {
 		cmd_keys();
-	} else if (strcmp(cmd, "dump") == 0
-		   || strcmp(cmd, "capture") == 0
-		   || strcmp(cmd, "wipe") == 0
-		   || strcmp(cmd, "attack") == 0
+	} else if (strcmp(cmd, "dump") == 0) {
+		cmd_dump(cursor);
+	} else if (strcmp(cmd, "capture") == 0) {
+		cmd_capture(cursor);
+	} else if (strcmp(cmd, "wipe") == 0) {
+		cmd_wipe();
+	} else if (strcmp(cmd, "attack") == 0
 		   || strcmp(cmd, "arm") == 0
 		   || strcmp(cmd, "fire") == 0) {
-		/* Hooked up in commits 7 (capture), 8 (KEYSET), 9 (weak_keys). */
+		/* attack: M4 (commit 9). arm/fire: M6/M7 reserved (active modes). */
 		mellon_ble_console_print("err: '%s' not yet wired in this build", cmd);
 	} else {
 		mellon_ble_console_print("err: unknown '%s' (try 'help')", cmd);
