@@ -1,0 +1,6 @@
+build:    0.1.0-dev (a1b2c3d)
+uptime:   00:14:22
+mode:     sniff
+frames:   total=2841 bad_crc=2 resync=0 oversize=0
+polls:    n=2823 avg=10ms min=8ms max=21ms
+libosdp:  absent

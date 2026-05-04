@@ -1,0 +1,10 @@
+{
+  "$schema": "../gen/schemas/mobile-schema.json",
+  "identifier": "default",
+  "description": "Default capability for the Mellon mobile app",
+  "windows": ["main"],
+  "permissions": [
+    "core:default",
+    "blec:default"
+  ]
+}

@@ -1,0 +1,17 @@
+node_modules
+dist
+target
+.DS_Store
+*.tsbuildinfo
+
+# tauri ios/android init output — committed once the user runs init,
+# but the local build artefacts beneath are not.
+src-tauri/gen/apple/build
+src-tauri/gen/apple/Pods
+src-tauri/gen/apple/.xcode.env.local
+src-tauri/gen/android/.gradle
+src-tauri/gen/android/build
+src-tauri/gen/android/app/build
+src-tauri/gen/android/local.properties
+src-tauri/gen/android/.cxx
+src-tauri/gen/android/captures

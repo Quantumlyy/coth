@@ -1,0 +1,183 @@
+:root {
+  color-scheme: light dark;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  font-size: 16px;
+  line-height: 1.4;
+}
+
+* { box-sizing: border-box; }
+
+html, body, #root { height: 100%; margin: 0; }
+
+body {
+  background: #0c0c0e;
+  color: #e7e7ea;
+}
+
+.app {
+  padding: env(safe-area-inset-top, 1rem) 1rem env(safe-area-inset-bottom, 1rem);
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  gap: 0.75rem;
+}
+
+header h1 { margin: 0 0 0.25rem; font-size: 1.4rem; }
+.muted { color: #8a8a91; margin: 0; font-size: 0.85rem; }
+
+.tabs {
+  display: flex;
+  gap: 0.5rem;
+  overflow-x: auto;
+  border-bottom: 1px solid #2b2b30;
+  padding-bottom: 0.5rem;
+}
+.tab {
+  background: transparent;
+  color: #aaa;
+  border: none;
+  padding: 0.4rem 0.75rem;
+  font: inherit;
+  border-radius: 6px;
+}
+.tab.active { background: #1f1f24; color: #fff; }
+
+.screen-host { flex: 1; overflow-y: auto; }
+.screen { display: flex; flex-direction: column; gap: 0.75rem; }
+.screen h2 { margin: 0; font-size: 1.1rem; }
+
+button {
+  background: #2b6cff;
+  color: #fff;
+  border: none;
+  border-radius: 8px;
+  padding: 0.6rem 1rem;
+  font: inherit;
+}
+button:disabled { background: #3b3b40; color: #888; }
+
+input, textarea, select {
+  background: #1a1a1e;
+  border: 1px solid #2b2b30;
+  color: #e7e7ea;
+  border-radius: 8px;
+  padding: 0.5rem 0.7rem;
+  font: inherit;
+  width: 100%;
+}
+
+.device-list { list-style: none; padding: 0; margin: 0; display: grid; gap: 0.5rem; }
+.device-list button {
+  width: 100%;
+  text-align: left;
+  background: #1a1a1e;
+  color: #e7e7ea;
+  display: flex;
+  flex-direction: column;
+  gap: 0.2rem;
+  padding: 0.7rem;
+}
+.device-list code { color: #8aa6ff; font-size: 0.85rem; }
+
+.error { color: #ff5f5f; font-size: 0.9rem; }
+
+details summary { cursor: pointer; padding: 0.4rem 0; color: #8a8a91; }
+
+/* Console screen */
+.console { height: 100%; }
+.log {
+  flex: 1;
+  background: #08080a;
+  border: 1px solid #2b2b30;
+  border-radius: 8px;
+  padding: 0.6rem;
+  overflow-y: auto;
+  font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+  font-size: 0.8rem;
+  white-space: pre-wrap;
+  word-break: break-all;
+  margin: 0;
+  min-height: 12rem;
+}
+.log-async { color: #ffb86c; }
+.log-ok { color: #7ce38b; }
+.log-err { color: #ff7b72; }
+.console-form { display: flex; gap: 0.5rem; }
+.console-form input { flex: 1; }
+
+/* Mode screen */
+.mode-list { list-style: none; padding: 0; margin: 0; display: grid; gap: 0.5rem; }
+.mode-list button {
+  width: 100%;
+  text-align: left;
+  background: #1a1a1e;
+  color: #e7e7ea;
+  display: flex;
+  flex-direction: column;
+  gap: 0.15rem;
+  padding: 0.7rem;
+  position: relative;
+}
+.mode-list .badge {
+  position: absolute;
+  right: 0.7rem;
+  top: 0.7rem;
+  background: #2b6cff;
+  color: #fff;
+  font-size: 0.7rem;
+  padding: 0.1rem 0.45rem;
+  border-radius: 99px;
+}
+
+/* Status screen — kv list */
+.kv {
+  display: grid;
+  grid-template-columns: 6rem 1fr;
+  gap: 0.3rem 0.75rem;
+  background: #1a1a1e;
+  border-radius: 8px;
+  padding: 0.7rem;
+  margin: 0;
+  font-size: 0.9rem;
+}
+.kv dt { color: #8a8a91; }
+.kv dd { margin: 0; word-break: break-word; }
+
+/* Dump screen */
+.dump-controls { display: flex; gap: 0.5rem; align-items: end; }
+.dump-controls label { display: flex; flex-direction: column; gap: 0.2rem; flex: 0 0 5rem; }
+.dump-controls input { width: 100%; }
+
+.dump-list { list-style: none; padding: 0; margin: 0; display: grid; gap: 0.5rem; }
+.dump-list li {
+  background: #1a1a1e;
+  border-radius: 8px;
+  padding: 0.6rem;
+  font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+  font-size: 0.78rem;
+}
+.dump-list header {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.4rem 0.7rem;
+  font-size: 0.75rem;
+  color: #aaa;
+  margin-bottom: 0.2rem;
+}
+.dump-list .t { color: #8aa6ff; }
+.dump-list .dir { color: #ffb86c; }
+.dump-list .flags { color: #ff7b72; }
+.dump-list code { color: #e7e7ea; word-break: break-all; }
+
+/* Async screen */
+.async-list { list-style: none; padding: 0; margin: 0; display: grid; gap: 0.4rem; }
+.async-list li {
+  background: #1a1a1e;
+  border-radius: 8px;
+  padding: 0.5rem 0.6rem;
+  font-size: 0.85rem;
+  display: flex;
+  gap: 0.6rem;
+  align-items: baseline;
+}
+.async-list .t { color: #8aa6ff; font-family: ui-monospace, monospace; font-size: 0.75rem; flex-shrink: 0; }

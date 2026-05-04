@@ -1,0 +1,22 @@
+[package]
+name = "mellon-mobile"
+description = "Mellon mobile companion (Tauri 2 + iOS/Android)"
+authors = ["Nejc Drobnič <nejc@nejc.dev>"]
+edition.workspace = true
+version.workspace = true
+license.workspace = true
+
+[lib]
+name = "mellon_mobile_lib"
+crate-type = ["staticlib", "cdylib", "rlib"]
+
+[build-dependencies]
+tauri-build = { version = "2", features = [] }
+
+[dependencies]
+tauri = { version = "2", features = [] }
+tauri-plugin-blec = "0.8"
+serde = { workspace = true }
+serde_json = { workspace = true }
+log = "0.4"
+mellon-proto = { path = "../crates/mellon-proto" }
