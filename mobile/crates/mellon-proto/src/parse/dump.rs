@@ -11,7 +11,12 @@ use serde::{Deserialize, Serialize};
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize)]
 #[serde(rename_all = "snake_case")]
 pub enum Direction {
+    // serde's snake_case turns `Cp2Pd` into `cp2_pd`; the firmware and the
+    // TS layer both use `cp2pd` / `pd2cp` (no internal underscore), so pin
+    // the wire form explicitly.
+    #[serde(rename = "cp2pd")]
     Cp2Pd,
+    #[serde(rename = "pd2cp")]
     Pd2Cp,
     Unknown,
 }
