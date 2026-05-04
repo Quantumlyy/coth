@@ -1,0 +1,4 @@
+[t=00:01:23.456] dir=cp2pd addr=0x00 cmd=0x60 len=8 flags=0  53 00 08 00 00 60 ?? ??
+[t=00:01:23.470] dir=pd2cp addr=0x00 cmd=0x40 len=6 flags=0  53 80 06 00 40 7C
+[t=00:02:00.000] dir=cp2pd addr=0x01 cmd=0x76 len=24 flags=1  53 01 18 00 02 76 AA BB CC DD EE FF 11 22 33 44 55 66 77 88 99 AA BB CC
+[t=00:02:01.500] dir=? addr=0x01 cmd=0x80 len=4 flags=16  53 81 02 ??

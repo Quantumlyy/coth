@@ -1,0 +1,3 @@
+addr=0x00 sc=y scbk=captured
+addr=0x01 sc=n scbk=-
+addr=0x7f sc=y scbk=-
