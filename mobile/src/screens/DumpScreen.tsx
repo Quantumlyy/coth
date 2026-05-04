@@ -13,6 +13,18 @@ const DIR_LABEL: Record<Direction, string> = {
   unknown: "?",
 };
 
+// The firmware accepts `dump <1..1000>`. Out-of-range values trigger a
+// `usage: …` line that has no ok/err terminator, so this expectsTerminator
+// dispatch would otherwise sit on the hard timeout. Clamp on input *and*
+// at dispatch.
+function clampCount(raw: number | string): number {
+  const n = Math.floor(Number(raw));
+  if (!Number.isFinite(n)) return 1;
+  if (n < 1) return 1;
+  if (n > 1000) return 1000;
+  return n;
+}
+
 function flagsLabel(row: DumpRow): string {
   const f = row.flags;
   const tags: string[] = [];
@@ -84,12 +96,12 @@ export default function DumpScreen({ connected }: Props) {
             min={1}
             max={1000}
             value={count}
-            onChange={(e) => setCount(Number(e.target.value) || 1)}
+            onChange={(e) => setCount(clampCount(e.target.value))}
           />
         </label>
         <button
           disabled={!connected || busy || pending}
-          onClick={() => runFetch(`dump ${count}\n`)}
+          onClick={() => runFetch(`dump ${clampCount(count)}\n`)}
         >
           {busy ? "fetching…" : "Recent"}
         </button>
