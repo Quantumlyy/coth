@@ -101,7 +101,10 @@ export async function dispatch(
         err: options.expectsTerminator ? "timeout" : null,
       });
     }, timeoutMs);
-    if (!options.expectsTerminator) bumpQuietTimer();
+    // The quiet window starts on the first response line, not on dispatch
+    // itself: sendCommand can take 500 ms on the iOS auth-retry path, and
+    // a quietMs shorter than that would otherwise resolve before any reply
+    // reached the framer. The hard timeout still bounds no-response cases.
 
     sendCommand(command).catch((e) => {
       settle({ lines: [], ok: false, err: `send: ${String(e)}` });
