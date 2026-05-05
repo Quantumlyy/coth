@@ -51,21 +51,23 @@ void test_capture_rec_explicit_le_layout(void)
 {
 	capture_rec_hdr_t hdr = {
 		.timestamp_us = 0x11223344u,
-		.length = 0x5566,
+		.length = 0x0166,	/* fits in CAPTURE_FRAME_MAX, distinct LSB/MSB */
 		.direction = 0x77,
 		.flags = 0x88,
 	};
+	uint8_t body[0x0166];
+	memset(body, 0xAB, sizeof(body));
 
 	uint8_t buf[CAPTURE_REC_MAX];
-	int n = capture_rec_pack(buf, sizeof(buf), &hdr, NULL);
-	TEST_ASSERT_EQUAL_INT(CAPTURE_REC_HDR_LEN, n);
+	int n = capture_rec_pack(buf, sizeof(buf), &hdr, body);
+	TEST_ASSERT_EQUAL_INT(CAPTURE_REC_HDR_LEN + (int)sizeof(body), n);
 
 	TEST_ASSERT_EQUAL_HEX8(0x44, buf[0]);	/* ts LSB */
 	TEST_ASSERT_EQUAL_HEX8(0x33, buf[1]);
 	TEST_ASSERT_EQUAL_HEX8(0x22, buf[2]);
 	TEST_ASSERT_EQUAL_HEX8(0x11, buf[3]);	/* ts MSB */
 	TEST_ASSERT_EQUAL_HEX8(0x66, buf[4]);	/* len LSB */
-	TEST_ASSERT_EQUAL_HEX8(0x55, buf[5]);	/* len MSB */
+	TEST_ASSERT_EQUAL_HEX8(0x01, buf[5]);	/* len MSB */
 	TEST_ASSERT_EQUAL_HEX8(0x77, buf[6]);
 	TEST_ASSERT_EQUAL_HEX8(0x88, buf[7]);
 }

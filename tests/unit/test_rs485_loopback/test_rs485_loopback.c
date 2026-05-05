@@ -18,7 +18,7 @@
 #include <stdbool.h>
 #include <stdint.h>
 
-#include "../../src/board/rs485_fsm.c"
+#include "../../../src/board/rs485_fsm.c"
 
 static bool last_pin_state;
 static uint32_t pin_transitions;

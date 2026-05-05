@@ -11,7 +11,7 @@
 #include <stdint.h>
 #include <string.h>
 
-#include "../../src/osdp/framing.c"
+#include "../../../src/osdp/framing.c"
 
 #define MAX_CAPTURED 16
 

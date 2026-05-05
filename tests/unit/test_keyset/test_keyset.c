@@ -14,8 +14,8 @@
 #include <unity.h>
 #include <string.h>
 
-#include "../../src/attacks/keyset_match.c"
-#include "../../src/osdp/framing.c"
+#include "../../../src/attacks/keyset_match.c"
+#include "../../../src/osdp/framing.c"
 
 void setUp(void) {}
 void tearDown(void) {}
