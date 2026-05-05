@@ -15,7 +15,7 @@
 #include <stdint.h>
 #include <string.h>
 
-#include "../../src/osdp/framing.c"
+#include "../../../src/osdp/framing.c"
 
 void setUp(void) {}
 void tearDown(void) {}

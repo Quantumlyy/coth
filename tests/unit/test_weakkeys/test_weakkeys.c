@@ -10,8 +10,8 @@
 #include <stdint.h>
 #include <string.h>
 
-#include "../../src/attacks/weakkeys_keys.c"
-#include "../../src/attacks/weakkeys_score.c"
+#include "../../../src/attacks/weakkeys_keys.c"
+#include "../../../src/attacks/weakkeys_score.c"
 
 void setUp(void) {}
 void tearDown(void) {}

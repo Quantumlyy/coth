@@ -21,6 +21,7 @@ zephyr/build/
 *~
 .idea/
 *.code-workspace
+.claude/
 
 # Python helper scripts
 __pycache__/

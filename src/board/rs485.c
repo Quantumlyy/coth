@@ -201,6 +201,9 @@ int mellon_rs485_send(const uint8_t *data, size_t len)
 
 void mellon_rs485_set_rx_handler(mellon_rs485_rx_fn fn, void *user)
 {
-	g_rx_fn = fn;
+	/* No barrier needed on Cortex-M: aligned pointer/word stores are atomic
+	 * and the architecture is sequentially consistent for ordinary memory.
+	 * See header for the single-writer expectation. */
 	g_rx_user = user;
+	g_rx_fn = fn;
 }

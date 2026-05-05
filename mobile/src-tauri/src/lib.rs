@@ -2,7 +2,7 @@ mod commands;
 
 #[cfg_attr(mobile, tauri::mobile_entry_point)]
 pub fn run() {
-    tauri::Builder::default()
+    let result = tauri::Builder::default()
         .plugin(tauri_plugin_blec::init())
         .invoke_handler(tauri::generate_handler![
             commands::parse_dump_row,
@@ -10,6 +10,10 @@ pub fn run() {
             commands::parse_key_row,
             commands::parse_async_event,
         ])
-        .run(tauri::generate_context!())
-        .expect("error while running tauri application");
+        .run(tauri::generate_context!());
+
+    if let Err(e) = result {
+        eprintln!("tauri runtime error: {e:#}");
+        std::process::exit(1);
+    }
 }

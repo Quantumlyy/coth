@@ -6,7 +6,7 @@ Talks to a Mellon over Nordic UART Service. Equivalent in spirit to nRF
 Connect's NUS terminal but scriptable from the command line.
 
 Requirements:
-    pip install bleak
+    pip install -r tools/requirements.txt
 
 Examples:
     # Interactive REPL
@@ -28,8 +28,9 @@ from typing import Optional
 
 try:
     from bleak import BleakClient, BleakScanner
+    from bleak.exc import BleakError
 except ImportError:
-    print("error: install bleak first  (pip install bleak)", file=sys.stderr)
+    print("error: install bleak first  (pip install -r tools/requirements.txt)", file=sys.stderr)
     sys.exit(1)
 
 NUS_SERVICE_UUID = "6e400001-b5a3-f393-e0a9-e50e24dcca9e"
@@ -68,34 +69,41 @@ async def run(args: argparse.Namespace) -> None:
             if tee:
                 tee.write(text + "\n")
 
-    async with BleakClient(address) as client:
-        if not client.is_connected:
-            print("connect failed", file=sys.stderr)
-            sys.exit(3)
+    try:
+        async with BleakClient(address) as client:
+            if not client.is_connected:
+                print(f"connect failed: device {address} did not complete pairing", file=sys.stderr)
+                sys.exit(3)
 
-        await client.start_notify(NUS_TX_CHAR_UUID, on_notify)
+            await client.start_notify(NUS_TX_CHAR_UUID, on_notify)
 
-        async def send(line: str) -> None:
-            payload = (line.rstrip() + "\n").encode()
-            await client.write_gatt_char(NUS_RX_CHAR_UUID, payload, response=False)
+            async def send(line: str) -> None:
+                payload = (line.rstrip() + "\n").encode()
+                await client.write_gatt_char(NUS_RX_CHAR_UUID, payload, response=False)
 
-        if args.once is not None:
-            await send(args.once)
-            await asyncio.sleep(args.timeout)
-        else:
-            print(f"connected — type 'help' or ^D to quit")
-            loop = asyncio.get_running_loop()
-            while True:
-                try:
-                    line = await loop.run_in_executor(None, sys.stdin.readline)
-                except (EOFError, KeyboardInterrupt):
-                    break
-                if not line:
-                    break
-                await send(line)
-                await asyncio.sleep(0.2)
+            if args.once is not None:
+                await send(args.once)
+                await asyncio.sleep(args.timeout)
+            else:
+                print(f"connected — type 'help' or ^D to quit")
+                loop = asyncio.get_running_loop()
+                while True:
+                    try:
+                        line = await loop.run_in_executor(None, sys.stdin.readline)
+                    except (EOFError, KeyboardInterrupt):
+                        break
+                    if not line:
+                        break
+                    await send(line)
+                    await asyncio.sleep(0.2)
 
-        await client.stop_notify(NUS_TX_CHAR_UUID)
+            await client.stop_notify(NUS_TX_CHAR_UUID)
+    except asyncio.TimeoutError:
+        print(f"timeout connecting to {address}", file=sys.stderr)
+        sys.exit(3)
+    except BleakError as e:
+        print(f"BLE error: {e}", file=sys.stderr)
+        sys.exit(3)
 
 
 def main() -> None:
